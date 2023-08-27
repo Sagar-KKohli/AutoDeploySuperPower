@@ -144,6 +144,7 @@ jobs:
             ls -la
             printenv
       - run: yum install -y tar gzip
+      - run: aws cloudformation describe-stack-events --stack-name "autoDeploy-Backend--${CIRCLE_WORKFLOW_ID:0:7}" 
       - run:
           name: Ensure back-end infrastructure exists
           command: |
