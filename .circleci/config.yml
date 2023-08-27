@@ -138,7 +138,13 @@ jobs:
     steps:
       - checkout      
       - run: yum install -y tar gzip      
-      - run: aws cloudformation describe-stack-events --stack-name "autoDeploy-Backend--${CIRCLE_WORKFLOW_ID:0:7}" 
+      # - run: aws cloudformation describe-stack-events --stack-name "autoDeploy-Backend--${CIRCLE_WORKFLOW_ID:0:7}" 
+      - run:
+          name: Diags
+          command: |
+            pwd
+            ls -la
+            printenv
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -147,12 +153,7 @@ jobs:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy --template-file .circleci/files/frontend.yml --tags project= your-tag --stack-name "autoDeploy-Frontend-${CIRCLE_WORKFLOW_ID:0:7}" --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
-          name: Diags
-          command: |
-            pwd
-            ls -la
-            printenv
+      
       - run:
           name: Add back-end ip to ansible inventory
           command: |
