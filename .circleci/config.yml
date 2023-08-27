@@ -137,6 +137,12 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Diags
+          command: |
+            pwd
+            ls -la
+            printenv
       - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
