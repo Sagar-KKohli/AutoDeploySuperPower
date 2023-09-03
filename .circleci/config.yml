@@ -16,24 +16,26 @@ commands:
             aws cloudformation delete-stack --stack-name "autoDeploy-Backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "autoDeploy-Frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
-
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      workflow_id:
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
+        type: string  
     steps:
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            export SUCCESS=$(curl --insecure "https://kvdb.io/YJpE9w6jJySXXaFoj3eLZN/migration_<<parameters.workflow_id>>")
+            if (( $SUCCESS == 1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
 
   install_ansible:
@@ -56,6 +58,15 @@ commands:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
+
+  install_nodejs:
+     description: Install Node.js 13
+     steps:
+      - run:
+          name: Install Node.js 13
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
             
 jobs:
   build-frontend:
@@ -231,38 +242,81 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
+      - attach_workspace:
+          at: ~/
+      # Dependencies installation
+      - install_nodejs
+      - install_awscli
+      - install_ansible
       - run:
           name: Get backend url
           command: |
-            # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --output text 
+            )
+
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
+            cd frontend
+            sudo npm install -g npm@latest
+            rm -rf node_modules
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
     docker:
       - image: cimg/python:3.11.4-node
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
+      - attach_workspace:
+          at: ~/
+      # Dependencies installation
+      - install_nodejs
+      - install_awscli
+      - install_ansible
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            cd backend
+
+            npm i
+            npm run build
+            cd ..
+
+            cd .circleci/ansible
+            mkdir files
+            cd files
+            tar -C ../../../backend -czvf artifact.tar.gz .
+            cd ../
+            
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment:
+           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
