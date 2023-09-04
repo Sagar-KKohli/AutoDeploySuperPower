@@ -218,7 +218,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/
+          at: .
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -248,7 +248,7 @@ jobs:
           fingerprints: 
             - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
       - attach_workspace:
-          at: ~/
+          at: .
       # Dependencies installation
       - install_nodejs
       - install_awscli
@@ -291,7 +291,7 @@ jobs:
           fingerprints: 
             - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
       - attach_workspace:
-          at: ~/
+          at: .
       # Dependencies installation
       - install_nodejs
       - install_awscli
