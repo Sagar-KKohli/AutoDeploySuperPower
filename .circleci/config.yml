@@ -187,8 +187,8 @@ jobs:
           root: .
           paths:
             - .circleci/ansible/inventory.txt
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
 
   configure-infrastructure:
     docker:
@@ -199,7 +199,7 @@ jobs:
           fingerprints: 
             - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
       - attach_workspace:
-          at: ~/
+          at: .
       - install_ansible
       - install_awscli
       - run:
