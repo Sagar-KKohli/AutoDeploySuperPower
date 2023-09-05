@@ -219,8 +219,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          keys: [backend-build]
+      # - restore_cache:
+      #     keys: [backend-build]
       - run:
           name: Run migrations
           command: |
@@ -232,7 +232,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
-            if grep -q "has been executed successfully." migrations_dump.txt
+            if grep -q "has been executed successfully." backend/migrations_dump.txt
             then
               curl --insecure https://kvdb.io/YJpE9w6jJySXXaFoj3eLZN/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
