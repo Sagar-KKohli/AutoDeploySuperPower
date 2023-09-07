@@ -30,7 +30,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            export SUCCESS=$(curl --insecure "https://kvdb.io/YJpE9w6jJySXXaFoj3eLZN/migration_<<parameters.workflow_id>>")
+            export SUCCESS=$(curl --insecure "https://kvdb.io/US4L7TKjnB9AENJyh9UW4G/migration_<<parameters.workflow_id>>")
             if (( $SUCCESS == 1 )); 
             then
               cd ~/project/backend
@@ -365,10 +365,10 @@ jobs:
               else
                 exit 1
               fi
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #       workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #       workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
