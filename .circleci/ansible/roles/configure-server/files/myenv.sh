@@ -1,9 +1,0 @@
-export TYPEORM_CONNECTION=postgres
-export TYPEORM_ENTITIES=./src/modules/domain/*/*/*.entity.ts
-export TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-export TYPEORM_PORT=5432
-export TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-export TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-export TYPEORM_MIGRATIONS=./src/migrations/*.ts
-export TYPEORM_MIGRATIONS_DIR=./src/migrations
