@@ -337,7 +337,6 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      steps:
       - checkout
       - install_nodejs
       - install_awscli
@@ -366,8 +365,10 @@ jobs:
               else
                 exit 1
               fi
-      - destroy-environment
-      - revert-migrations
+      - destroy-environment:
+            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
