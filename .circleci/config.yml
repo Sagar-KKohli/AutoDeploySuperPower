@@ -261,7 +261,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
       - checkout
       - add_ssh_keys:
@@ -269,11 +269,7 @@ jobs:
             - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
       - attach_workspace:
           at: .
-      # Dependencies installation
-      - run:
-          name: Install tar/gzip utility
-          command: |
-            yum install -y tar gzip
+      # Dependencies installation      
       - install_nodejs
       - install_awscli
       - install_ansible
@@ -303,7 +299,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: cimg/python:3.11.4-node
+      - image: cimg/base:stable
     steps:
       - checkout
       - add_ssh_keys:
@@ -312,10 +308,6 @@ jobs:
       - attach_workspace:
           at: .
       # Dependencies installation
-      - run:
-          name: Install tar/gzip utility
-          command: |
-            yum install -y tar gzip
       - install_nodejs
       - install_awscli
       - install_ansible
