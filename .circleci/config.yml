@@ -250,6 +250,7 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               echo 'Migrated successfully'
+              echo "insecure" >> ~/.curlrc
               curl https://kvdb.io/US4L7TKjnB9AENJyh9UW4G/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else:
               echo 'Migration failed'
