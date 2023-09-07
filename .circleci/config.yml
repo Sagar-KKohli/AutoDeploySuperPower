@@ -312,6 +312,10 @@ jobs:
       - attach_workspace:
           at: .
       # Dependencies installation
+      - run:
+          name: Install tar/gzip utility
+          command: |
+            yum -y install tar
       - install_nodejs
       - install_awscli
       - install_ansible
