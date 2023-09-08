@@ -192,22 +192,28 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/python:3.11.4-node  # python:3.7-alpine3.11
+      - image: amazon/aws-cli:latest
     steps:
       - checkout
+      # Add the necessary SSH key fingerprint
       - add_ssh_keys:
-          fingerprints: 
+          fingerprints:
             - "2d:28:15:f1:19:c9:4c:89:a3:b7:98:64:2a:c7:98:c9"
+      - run:
+          name: Install dependencies
+          command: |
+            yum update
+            yum install -y tar gzip unzip
+            yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            yum -y install ansible
+      #Attach the workspace
       - attach_workspace:
           at: .
-      - install_ansible
-      - install_awscli
+      #We get the IP from the inv file and run ansible
       - run:
-          name: Run Playbook and Configure server
+          name: Configure server
           command: |
             cd .circleci/ansible
-            cat inventory.txt
-
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
