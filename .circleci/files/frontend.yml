@@ -10,7 +10,7 @@ Resources:
   WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "autodeploy-${ID}"
+      BucketName: !Sub "udapeople-${ID}"
       PublicAccessBlockConfiguration:
           BlockPublicPolicy: false
       WebsiteConfiguration:
