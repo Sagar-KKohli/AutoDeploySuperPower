@@ -208,7 +208,7 @@ jobs:
             yum -y install ansible
       #Attach the workspace
       - attach_workspace:
-          at: .
+          at: ~/
       #We get the IP from the inv file and run ansible
       - run:
           name: Configure server
